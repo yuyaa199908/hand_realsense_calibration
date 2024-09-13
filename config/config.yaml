@@ -1,0 +1,33 @@
+/**:
+  ros__parameters:
+    frame_id_map: "map"
+    frame_id_hand: "hand"
+    frame_id_cam: "camera_color_optical_frame"
+
+    camera_param:
+      height: 720
+      width: 1280
+      d:
+        - -0.057686787098646164
+        - 0.06685127317905426
+        - -0.0002468553720973432
+        - 0.0007276988471858203
+        - -0.021987270563840866
+      k:
+        - 641.9744873046875
+        - 0.0
+        - 637.8692016601562
+        - 0.0
+        - 641.239501953125
+        - 364.94647216796875
+        - 0.0
+        - 0.0
+        - 1.0
+
+    board:
+      squares_x: 7  # vertical
+      squares_y: 5  # horizonal
+      square_length: 0.03   #[m]
+      marker_length: 0.015  #[m]
+     
+
