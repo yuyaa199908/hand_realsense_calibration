@@ -3,8 +3,8 @@
     frame_id_map: "map"
     frame_id_hand: "hand"
     frame_id_cam: "camera_color_optical_frame"
-
-    camera_param:
+    frame_id_board: "board"
+    camera:
       height: 720
       width: 1280
       d:
@@ -27,7 +27,7 @@
     board:
       squares_x: 7  # vertical
       squares_y: 5  # horizonal
-      square_length: 0.03   #[m]
-      marker_length: 0.015  #[m]
+      square_length: 0.04   #[m]
+      marker_length: 0.02  #[m]
      
 
