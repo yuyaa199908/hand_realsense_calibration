@@ -27,7 +27,7 @@
     board:
       squares_x: 6  # vertical
       squares_y: 5  # horizonal
-      square_length: 0.04   #[m]
-      marker_length: 0.02  #[m]
+      square_length: 0.03941   #[m]
+      marker_length: 0.0235  #[m]
      
 

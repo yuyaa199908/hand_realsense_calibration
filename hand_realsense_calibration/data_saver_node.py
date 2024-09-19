@@ -34,8 +34,6 @@ class DataSaverNode(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
     def CB_input_img(self, msg):
-        # 
-        
         self.msg_input_img = msg
         self.get_pose_cam2board()
 
@@ -67,6 +65,7 @@ class DataSaverNode(Node):
                 
                 # ポーズ推定が成功したら、軸を描画します
                 if retval: 
+                    # img_undistorted に描画
                     for i in range(len(marker_ids)):
                         cv2.line(img_undistorted, (int(marker_corners[i][0,0,0]),int(marker_corners[i][0,0,1])), 
                                     (int(marker_corners[i][0,1,0]),int(marker_corners[i][0,1,1])), (0, 255, 0))
@@ -82,27 +81,30 @@ class DataSaverNode(Node):
                         cv2.drawMarker(img_undistorted, (int(charuco_corners[i,0,0]), int(charuco_corners[i,0,1])), 
                                        (0,0,255), markerType=cv2.MARKER_CROSS, markerSize=20, thickness=1, line_type=cv2.LINE_8)
                     cv2.drawFrameAxes(img_undistorted, self.cam_k, self.cam_d, rvec, tvec, length= 0.1 , thickness=3)
-                    
                     msg_output_img = CvBridge().cv2_to_imgmsg(cv2.cvtColor(img_undistorted, cv2.COLOR_BGR2RGB),'rgb8')
                     self.pub_img.publish(msg_output_img)
                     
+                    # tvec, rvec からボードのポリゴンをpublish 
                     # self.get_logger().info(f'{rvec},{tvec}')
-                    # rot = Rotation.from_euler("xyz",rvec.reshape((1,3)))
-                    # r_matrix = rot.as_matrix()
-                    # edge0 = tvec
-                    # edge1 = edge0 + np.dot(r_matrix, [self.board_square_lengh * self.board_squares_x, 0, 0])
-                    # edge2 = edge1 + np.dot(r_matrix, [0, self.board_square_lengh * self.board_squares_y, 0])
-                    # edge3 = edge0 + np.dot(r_matrix, [0, self.board_square_lengh * self.board_squares_y, 0])
+                    rot = Rotation.from_euler("xyz",rvec.reshape((1,3)))
+                    r_matrix = rot.as_matrix()
+                    dx = np.dot(r_matrix, np.array([self.board_square_lengh * self.board_squares_x, 0, 0]))
+                    dy = np.dot(r_matrix, np.array([0, self.board_square_lengh * self.board_squares_y, 0]))
+                    edge0 = tvec.reshape((1,3))
+                    edge1 = edge0 + dx
+                    edge2 = edge0 + dx + dy
+                    edge3 = edge0 + dy
 
-                    # msg_output_poly = PolygonStamped()
-                    # msg_output_poly.header.frame_id =  self.frame_id_cam
-                    # now = self.get_clock().now()
-                    # msg_output_poly.header.stamp = Time(sec=now.seconds_nanoseconds()[0], nanosec=now.seconds_nanoseconds()[1])
-                    # for i,edge in enumerate([edge0,edge1,edge2,edge3,edge0]):
-                    #     p = Point32()
-                    #     p.x, p.y, p.z = edge[0,0], edge[1,0], edge[2,0]
-                    #     msg_output_poly.polygon.points.append(p)
-                    # self.pub_polygon_stamped.publish(msg_output_poly)
+                    msg_output_poly = PolygonStamped()
+                    msg_output_poly.header.frame_id =  self.frame_id_cam
+                    now = self.get_clock().now()
+                    msg_output_poly.header.stamp = Time(sec=now.seconds_nanoseconds()[0], nanosec=now.seconds_nanoseconds()[1])
+                    for i,edge in enumerate([edge0,edge1,edge2,edge3]):
+                        p = Point32()
+                        p.x, p.y, p.z = edge[0,0], edge[0,1], edge[0,2]
+                        msg_output_poly.polygon.points.append(p)
+                        
+                    self.pub_polygon_stamped.publish(msg_output_poly)
                                             
 
     def init_param(self):
